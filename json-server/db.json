@@ -239,6 +239,36 @@
       "icone": "LanguageIcon",
       "data": "2025-07-15",
       "conta": "conta-corrente"
+    },
+    {
+      "id": "a0c7",
+      "tipo": "Depósito",
+      "descricao": "Conta Corrente",
+      "horario": "19:47",
+      "valor": 1000,
+      "icone": "AttachMoneyIcon",
+      "data": "2025-07-22",
+      "conta": "conta-corrente"
+    },
+    {
+      "id": "8673",
+      "tipo": "Depósito",
+      "descricao": "Conta Corrente",
+      "horario": "19:53",
+      "valor": 2000,
+      "icone": "AttachMoneyIcon",
+      "data": "2025-07-22",
+      "conta": "conta-corrente"
+    },
+    {
+      "id": "ac80",
+      "tipo": "Depósito",
+      "descricao": "Conta Corrente",
+      "horario": "21:12",
+      "valor": 22,
+      "icone": "AttachMoneyIcon",
+      "data": "2025-07-23",
+      "conta": "conta-corrente"
     }
   ]
 }

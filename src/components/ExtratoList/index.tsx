@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   List,
   ListItem,
@@ -8,64 +8,93 @@ import {
   IconButton,
   Box,
   TextField,
-} from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import CloseIcon from '@mui/icons-material/Close';
-import ButtonServices from '@components/ButtonServices';
-import type { Extrato } from 'src/types/Extrato';
-import { NumericFormat } from 'react-number-format'
+} from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import CloseIcon from "@mui/icons-material/Close";
+import ButtonServices from "@components/ButtonServices";
+import type { Extrato } from "src/types/Extrato";
+import { NumericFormat } from "react-number-format";
 import {
   useMutationDeleteExtrato,
   useMutationUpdateExtrato,
   useQueryGetExtrato,
-} from '@hooks/useQueryExtrato';
-import { agruparPorData } from '@utils/agrupaPorData';
-import { Slide, toast } from 'react-toastify';
-import Swal from 'sweetalert2';
-import { formatarDataGrupo } from '@utils/formataDataGrupo';
-import { formatarValor } from '@utils/formataValor';
-import { getIconComponent } from '@utils/getIconComponent';
-import { Loading } from '@components/Loading';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+} from "@hooks/useQueryExtrato";
+import { agruparPorData } from "@utils/agrupaPorData";
+import { Slide, toast } from "react-toastify";
+import Swal from "sweetalert2";
+import { formatarDataGrupo } from "@utils/formataDataGrupo";
+import { formatarValor } from "@utils/formataValor";
+import { getIconComponent } from "@utils/getIconComponent";
+import { Loading } from "@components/Loading";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
-export default function ExtratoList() {
+type ExtratoListProps = {
+  filtro: string;
+  filtroData: Date | null;
+};
+
+export default function ExtratoList({
+  filtro,
+  filtroData,
+}: Readonly<ExtratoListProps>) {
   const [editandoId, setEditandoId] = useState<string | null>(null);
-  const [novoValor, setNovoValor] = useState<string>('');
+  const [novoValor, setNovoValor] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const { data } = useQueryGetExtrato();
   const updateMutate = useMutationUpdateExtrato();
   const deleteMutate = useMutationDeleteExtrato();
 
-  const grupos = agruparPorData(data as Extrato[]);
-
-  const datasOrdenadas = grupos
-    ? Object.keys(grupos).sort((a, b) => {
-      if (a > b) return -1;
-      if (a < b) return 1;
-      return 0;
-    })
-    : [];
-
-  function handleEditClick(item: Extrato) {
-    setEditandoId(item.id);
-    setNovoValor(item.valor.toString().replace('.', ','));
+  function normalizeDate(date: Date) {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
   }
 
+  // Aplica filtros
+  const hoje = normalizeDate(new Date());
+  const filtroDataNormalized = filtroData ? normalizeDate(filtroData) : null;
+  const gruposFiltrados = agruparPorData(
+    (data ?? []).filter((item) => {
+      const busca = filtro.toLowerCase();
+      const valorFiltro = filtro.replace(/[^\d,.-]/g, "").replace(",", ".");
+      const dataItem = normalizeDate(new Date(item.data));
+      const passaFiltroTexto =
+        item.descricao.toLowerCase().includes(busca) ||
+        item.tipo.toLowerCase().includes(busca) ||
+        item.valor?.toString().includes(valorFiltro);
+
+      const passaFiltroData =
+        !filtroDataNormalized ||
+        (dataItem >= filtroDataNormalized && dataItem <= hoje);
+      return passaFiltroTexto && passaFiltroData;
+    })
+  );
+
+  // Ordena dados
+  const datasOrdenadas = gruposFiltrados
+    ? Object.keys(gruposFiltrados).sort((a, b) => (a > b ? -1 : 1))
+    : [];
+
+  // Click Editar
+  function handleEditClick(item: Extrato) {
+    setEditandoId(item.id);
+    setNovoValor(item.valor.toString().replace(".", ","));
+  }
+
+  // Atualizar
   async function handleUpdate(item: Extrato) {
     if (!item) return;
 
     const valorSanitizado = novoValor
-      .replace('R$', '')
-      .replace(/\./g, '')
-      .replace(',', '.')
+      .replace("R$", "")
+      .replace(/\./g, "")
+      .replace(",", ".")
       .trim();
 
     const valorNumber = Number(valorSanitizado);
 
     if (isNaN(valorNumber)) {
-      console.log('Valor inválido:', valorSanitizado);
-      toast.error('Valor inválido!');
+      console.log("Valor inválido:", valorSanitizado);
+      toast.error("Valor inválido!");
       return;
     }
 
@@ -74,40 +103,41 @@ export default function ExtratoList() {
 
       await updateMutate.mutateAsync({ id: item.id, valor: Number(novoValor) });
 
-      toast.success('Extrato atualizado com sucesso.', {
-        position: 'top-right',
+      toast.success("Extrato atualizado com sucesso.", {
+        position: "top-right",
         autoClose: 9000,
         hideProgressBar: false,
         closeOnClick: false,
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        theme: 'colored',
+        theme: "colored",
         transition: Slide,
       });
 
       setEditandoId(null);
-      setNovoValor('');
+      setNovoValor("");
     } catch (e) {
-      console.error('Erro ao atualizar:', e);
-      toast.error('Erro ao atualizar o extrato.');
+      console.error("Erro ao atualizar:", e);
+      toast.error("Erro ao atualizar o extrato.");
     } finally {
       setLoading(false);
     }
   }
 
+  // Remover
   async function handleDelete(item: Extrato) {
     if (!item) return;
 
     try {
       const result = await Swal.fire({
-        title: 'Você tem certeza?',
+        title: "Você tem certeza?",
         html: `<p>Esta ação removerá o extrato. Deseja continuar?</p>`,
-        icon: 'warning',
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonText: 'Sim, remover!',
-        cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#236B7A',
+        confirmButtonText: "Sim, remover!",
+        cancelButtonText: "Cancelar",
+        confirmButtonColor: "#236B7A",
       });
 
       if (result.isConfirmed) {
@@ -115,30 +145,30 @@ export default function ExtratoList() {
 
         await deleteMutate.mutateAsync({ id: item.id });
 
-        toast.success('Extrato excluído com sucesso.', {
-          position: 'top-right',
+        toast.success("Extrato excluído com sucesso.", {
+          position: "top-right",
           autoClose: 9000,
           hideProgressBar: false,
           closeOnClick: false,
           pauseOnHover: true,
           draggable: true,
           progress: undefined,
-          theme: 'colored',
+          theme: "colored",
           transition: Slide,
         });
         await new Promise((resolve) => setTimeout(resolve, 500));
       }
     } catch (e) {
-      console.error('Erro ao excluir:', e);
+      console.error("Erro ao excluir:", e);
     } finally {
       setLoading(false);
     }
   }
 
-
+  // Cancelar
   function handleCancel() {
     setEditandoId(null);
-    setNovoValor('');
+    setNovoValor("");
   }
 
   return (
@@ -146,21 +176,21 @@ export default function ExtratoList() {
       <Loading show={loading} />
       <Box
         sx={{
-          width: '100%',
+          width: "100%",
           mx: 2,
-          maxHeight: '60vh',
-          overflowY: 'auto',
-          scrollbarGutter: 'stable',
+          maxHeight: "60vh",
+          overflowY: "auto",
+          scrollbarGutter: "stable",
           borderRadius: 2,
           p: 1,
         }}
       >
         <List
           sx={{
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'flex-start',
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
           }}
         >
           {datasOrdenadas.map((data) => (
@@ -175,7 +205,7 @@ export default function ExtratoList() {
               >
                 {formatarDataGrupo(data)}
               </Typography>
-              {grupos[data]
+              {gruposFiltrados[data]
                 .slice()
                 .sort((a, b) =>
                   a.horario < b.horario ? 1 : a.horario > b.horario ? -1 : 0
@@ -192,7 +222,7 @@ export default function ExtratoList() {
                             <IconButton
                               edge="end"
                               aria-label="save"
-                              sx={{ color: '#388e3c', mr: 2 }}
+                              sx={{ color: "#388e3c", mr: 2 }}
                               onClick={() => handleUpdate(item)}
                             >
                               <CheckCircleIcon />
@@ -200,7 +230,7 @@ export default function ExtratoList() {
                             <IconButton
                               edge="end"
                               aria-label="cancel"
-                              sx={{ color: '#d32f2f' }}
+                              sx={{ color: "#d32f2f" }}
                               onClick={handleCancel}
                             >
                               <CloseIcon />
@@ -211,7 +241,7 @@ export default function ExtratoList() {
                             <IconButton
                               edge="end"
                               aria-label="edit"
-                              sx={{ color: '#000', mr: 2 }}
+                              sx={{ color: "#000", mr: 2 }}
                               onClick={() => handleEditClick(item)}
                             >
                               <EditIcon />
@@ -219,7 +249,7 @@ export default function ExtratoList() {
                             <IconButton
                               edge="end"
                               aria-label="delete"
-                              sx={{ color: '#000' }}
+                              sx={{ color: "#000" }}
                               onClick={() => handleDelete(item)}
                             >
                               <DeleteIcon />
@@ -228,12 +258,14 @@ export default function ExtratoList() {
                         )
                       }
                       sx={{
-                        flexWrap: 'wrap',
+                        flexWrap: "wrap",
                       }}
                     >
                       <ListItemAvatar sx={{ mr: 2 }}>
                         <ButtonServices
-                          icon={React.createElement(getIconComponent(item.icone))}
+                          icon={React.createElement(
+                            getIconComponent(item.icone)
+                          )}
                           disabled
                         />
                       </ListItemAvatar>
@@ -252,8 +284,8 @@ export default function ExtratoList() {
                         }
                         sx={{
                           flex: 2,
-                          '& .MuiListItemText-primary': { color: '#000' },
-                          '& .MuiListItemText-secondary': { color: '#000' },
+                          "& .MuiListItemText-primary": { color: "#000" },
+                          "& .MuiListItemText-secondary": { color: "#000" },
                         }}
                       />
                       <ListItemText
@@ -266,7 +298,8 @@ export default function ExtratoList() {
                               prefix="R$ "
                               thousandSeparator="."
                               decimalSeparator=","
-                              onValueChange={(values) => setNovoValor(values.value)
+                              onValueChange={(values) =>
+                                setNovoValor(values.value)
                               }
                               sx={{ width: 90 }}
                             />
@@ -275,13 +308,13 @@ export default function ExtratoList() {
                           )
                         }
                         sx={{
-                          '& .MuiListItemText-secondary': (theme) => ({
+                          "& .MuiListItemText-secondary": (theme) => ({
                             color: isNegative
                               ? theme.palette.error.main
                               : theme.palette.success.main,
                             fontWeight: 600,
                           }),
-                          textAlign: 'center',
+                          textAlign: "center",
                         }}
                       />
                     </ListItem>
