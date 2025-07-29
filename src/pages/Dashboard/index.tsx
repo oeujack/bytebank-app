@@ -7,6 +7,7 @@ import CardComponents from '@components/CardComponents';
 import CardPoupanca from '@components/CardPoupanca';
 import CardInvestimentos from '@components/CardInvestimentos';
 import CardServicos from '@components/CardServicos';
+import ChartView from '@components/Chart';
 
 export default function PageDashboard() {
   return (
@@ -37,16 +38,22 @@ export default function PageDashboard() {
           />
         </Link>
       </Box>
-      <CardComponents title="Poupança">
-        <CardPoupanca />
-      </CardComponents>
-      <CardComponents title="Investimentos">
-        <CardInvestimentos />
-      </CardComponents>
-
-      <CardComponents title="Outros Serviços">
-        <CardServicos />
-      </CardComponents>
+      <Box>
+        <Box>
+          <CardComponents title="Poupança">
+            <CardPoupanca />
+          </CardComponents>
+          <CardComponents title="Movimento diário">
+            <ChartView />
+          </CardComponents>
+          <CardComponents title="Investimentos">
+            <CardInvestimentos />
+          </CardComponents>
+          <CardComponents title="Outros serviços">
+            <CardServicos />
+          </CardComponents>
+        </Box>
+      </Box>
     </>
   );
 }

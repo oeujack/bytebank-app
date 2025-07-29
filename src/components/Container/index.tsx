@@ -1,6 +1,6 @@
 import Balance from '@components/Balance';
 import HeaderComponent from '@components/Header';
-import { Container, Box } from '@mui/material';
+import { Container } from '@mui/material';
 
 export default function MainContainer({
   children,
@@ -12,7 +12,7 @@ export default function MainContainer({
       <Container
         sx={{
           border: '1px solid #454545',
-          height: '100vh',
+          height: '100%',
           pr: 0,
           pl: 0,
           display: 'flex',
@@ -21,7 +21,7 @@ export default function MainContainer({
       >
         <HeaderComponent />
         <Balance />
-        <Box>{children}</Box>
+        {children}
       </Container>
     </>
   );

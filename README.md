@@ -25,7 +25,6 @@ Decidimos também reimaginar em alguns pontos o layout proposto ara o projeto, q
 
 ## Tecnologias Utilizadas
 
-- [Next.js](https://nextjs.org)
 - [React](https://react.dev)
 - [Material UI](https://mui.com)
 - [json-server](https://github.com/typicode/json-server) (mock API)
@@ -49,7 +48,7 @@ Decidimos também reimaginar em alguns pontos o layout proposto ara o projeto, q
    ```
 
 4. **Acesse a aplicação:**
-   Abra [http://localhost:3000](http://localhost:3000) no seu navegador. Após abrir a aplicação no seu navegador, aparecerá uma tela inicial informativa sobre o Bytebank, para acessar a parte transacional do projeto, clique em "Já tenho conta".
+   Abra [http://localhost:5173](http://localhost:5173) no seu navegador. Após abrir a aplicação no seu navegador, aparecerá uma tela inicial informativa sobre o Bytebank, para acessar a parte transacional do projeto, clique em "Já tenho conta".
 
 ## Documentação de Componentes com Storybook
 
