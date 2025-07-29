@@ -18,7 +18,7 @@ import { NumericFormat } from "react-number-format";
 import {
   useMutationDeleteExtrato,
   useMutationUpdateExtrato,
-  useQueryGetExtrato,
+  useQueryGetExtratoInfinity,
 } from "@hooks/useQueryExtrato";
 import { agruparPorData } from "@utils/agrupaPorData";
 import { Slide, toast } from "react-toastify";
@@ -41,19 +41,27 @@ export default function ExtratoList({
   const [editandoId, setEditandoId] = useState<string | null>(null);
   const [novoValor, setNovoValor] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const { data } = useQueryGetExtrato();
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useQueryGetExtratoInfinity();
   const updateMutate = useMutationUpdateExtrato();
   const deleteMutate = useMutationDeleteExtrato();
-
   function normalizeDate(date: Date) {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
   }
+
+  const todosExtratos: Extrato[] = (data?.pages ?? []).flatMap(
+    (page) => page.data
+  );
+  //Removendo duplicados
+  const uniqueExtratos = Array.from(
+    new Map(todosExtratos.map((item) => [item.id, item])).values()
+  );
 
   // Aplica filtros
   const hoje = normalizeDate(new Date());
   const filtroDataNormalized = filtroData ? normalizeDate(filtroData) : null;
   const gruposFiltrados = agruparPorData(
-    (data ?? []).filter((item) => {
+    uniqueExtratos.filter((item) => {
       const busca = filtro.toLowerCase();
       const valorFiltro = filtro.replace(/[^\d,.-]/g, "").replace(",", ".");
       const dataItem = normalizeDate(new Date(item.data));
@@ -175,6 +183,14 @@ export default function ExtratoList({
     <>
       <Loading show={loading} />
       <Box
+        onScroll={(e) => {
+          const target = e.currentTarget;
+          const isNearBottom =
+            target.scrollHeight - target.scrollTop <= target.clientHeight + 100;
+          if (isNearBottom && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+        }}
         sx={{
           width: "100%",
           mx: 2,
@@ -323,6 +339,14 @@ export default function ExtratoList({
             </React.Fragment>
           ))}
         </List>
+        {isFetchingNextPage && (
+          <Typography
+            variant="body2"
+            sx={{ textAlign: "center", width: "100%", mt: 2 }}
+          >
+            Carregando mais...
+          </Typography>
+        )}
       </Box>
     </>
   );
