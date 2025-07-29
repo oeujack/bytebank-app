@@ -2,18 +2,23 @@ import Title from '@components/Title';
 import { Box, TextField, Typography } from '@mui/material';
 import CButton from '@components/CButton';
 import { useState } from 'react';
-import { useMutationPostExtrato, useQueryGetExtrato } from '@hooks/useQueryExtrato';
+import { useMutationPostExtrato, useQueryGetExtratoInfinity } from '@hooks/useQueryExtrato';
 import { Slide, toast } from 'react-toastify';
 import { Loading } from '@components/Loading';
 import { NumericFormat } from 'react-number-format';
+import type { Extrato } from 'src/types/Extrato';
 
 export default function PageBoleto() {
   const [conta, setConta] = useState('');
   const [descricao, setDescricao] = useState('');
   const [valor, setValor] = useState('');
   const [loading, setLoading] = useState(false);
-  const { data } = useQueryGetExtrato()
-  const postMutation = useMutationPostExtrato()
+  const { data } = useQueryGetExtratoInfinity()
+  const postMutation = useMutationPostExtrato();
+
+  const todosExtratos: Extrato[] = (data?.pages ?? []).flatMap(
+      (page) => page.data
+    );
 
   function handleConta(contaSelecionada: string) {
     setConta(contaSelecionada);
@@ -32,7 +37,7 @@ export default function PageBoleto() {
     }
 
 
-    const saldoConta = data?.filter((item: any) => !item.conta || item.conta === conta
+    const saldoConta = todosExtratos?.filter((item: any) => !item.conta || item.conta === conta
     )
       .reduce((acc: number, item: any) => acc + Number(item.valor), 0);
 

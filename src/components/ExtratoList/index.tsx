@@ -46,6 +46,7 @@ export default function ExtratoList({
   const updateMutate = useMutationUpdateExtrato();
   const deleteMutate = useMutationDeleteExtrato();
   function normalizeDate(date: Date) {
+    console.log("filtrodata", date);
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
   }
 
@@ -64,7 +65,14 @@ export default function ExtratoList({
     uniqueExtratos.filter((item) => {
       const busca = filtro.toLowerCase();
       const valorFiltro = filtro.replace(/[^\d,.-]/g, "").replace(",", ".");
-      const dataItem = normalizeDate(new Date(item.data));
+      const partesData = item.data.split("-"); // yyyy-mm-dd
+      const dataItem = normalizeDate(
+        new Date(
+          Number(partesData[0]),
+          Number(partesData[1]) - 1,
+          Number(partesData[2])
+        )
+      );
       const passaFiltroTexto =
         item.descricao.toLowerCase().includes(busca) ||
         item.tipo.toLowerCase().includes(busca) ||

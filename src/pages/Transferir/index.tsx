@@ -3,17 +3,22 @@ import { Box, TextField, Typography } from '@mui/material';
 import CButton from '@components/CButton';
 import { useState } from 'react';
 import { Slide, toast } from 'react-toastify';
-import { useMutationPostExtrato, useQueryGetExtrato } from '@hooks/useQueryExtrato';
+import { useMutationPostExtrato, useQueryGetExtratoInfinity } from '@hooks/useQueryExtrato';
 import { NumericFormat } from 'react-number-format';
 import { Loading } from '@components/Loading';
+import type { Extrato } from 'src/types/Extrato';
 
 export default function PageTransferir() {
   const [contaDeposito, setContaDeposito] = useState('');
   const [destinatario, setDestinatario] = useState('');
   const [valor, setValor] = useState('');
   const [loading, setLoading] = useState(false);
-  const { data } = useQueryGetExtrato()
-  const postMutation = useMutationPostExtrato()
+  const { data } = useQueryGetExtratoInfinity()
+  const postMutation = useMutationPostExtrato();
+
+  const todosExtratos: Extrato[] = (data?.pages ?? []).flatMap(
+    (page) => page.data
+  );
 
   function handleConta(conta: string) {
     setContaDeposito(conta);
@@ -31,7 +36,7 @@ export default function PageTransferir() {
       return;
     }
 
-    const saldoConta = data?.filter((item: any) => item.conta === contaDeposito)
+    const saldoConta = todosExtratos?.filter((item: any) => item.conta === contaDeposito)
       .reduce((acc: number, item: any) => acc + Number(item.valor), 0);
 
     const saldoAjustado = Number(saldoConta?.toFixed(2));
