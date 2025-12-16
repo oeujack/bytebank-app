@@ -10,35 +10,31 @@ import { Loading } from "@shared/components/Loading";
 import { NumericFormat } from "react-number-format";
 
 interface FormValues {
-  valor: string;
+  valor?: number;
   conta: string;
 }
 
 const initialValues: FormValues = {
-  valor: "",
+  valor: undefined,
   conta: "",
 };
 
+const contaLabelMap: Record<string, string> = {
+  "conta-corrente": "Conta Corrente",
+  "conta-poupança": "Conta Poupança",
+};
+
 const validationSchema = Yup.object({
-  valor: Yup.string()
-    .required("Informe o valor a ser depositado")
-    .test(
-      "valor-maior-que-zero",
-      "O valor a depositar deve ser maior do que zero",
-      (value) => {
-        if (!value) return false;
+  valor: Yup.number()
+    .typeError("Informe um valor válido")
+    .moreThan(0, "O valor a depositar deve ser maior do que zero")
+    .required("Informe o valor a ser depositado"),
 
-        const valorNumerico = Number(
-          value.replace(",", ".").replace("R$", "").trim()
-        );
-
-        return !Number.isNaN(valorNumerico) && valorNumerico > 0;
-      }
-    ),
   conta: Yup.string().required("Selecione a conta para depósito"),
 });
 
 export default function PageDeposito() {
+  const [formKey, setFormKey] = useState(0);
   const postMutation = useMutationPostExtrato();
   const [loading, setLoading] = useState(false);
 
@@ -46,26 +42,15 @@ export default function PageDeposito() {
     <>
       <Loading show={loading} />
       <Title title="Realizar depósito" />
+
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={async (values, { resetForm }) => {
-          const valorNumerico = Number(
-            values.valor.replaceAll(/[^\d,-]/g, "").replace(",", ".")
-          );
-
-          if (valorNumerico <= 0 || Number.isNaN(valorNumerico)) {
-            toast.warning("Digite um valor válido para o depósito.");
-            return;
-          }
-
-          const contaLabelMap: Record<string, string> = {
-            "conta-corrente": "Conta Corrente",
-            "conta-poupança": "Conta Poupança",
-          };
-
+          const valorNumerico = values.valor ?? 0;
           const contaLabel = contaLabelMap[values.conta] ?? values.conta;
           const now = new Date();
+
           setLoading(true);
 
           try {
@@ -92,6 +77,7 @@ export default function PageDeposito() {
             });
 
             resetForm();
+            setFormKey((k) => k + 1);
           } catch (error) {
             console.error("Erro ao realizar o depósito:", error);
             toast.error("Erro ao realizar o depósito.");
@@ -106,18 +92,21 @@ export default function PageDeposito() {
             component="form"
             onSubmit={handleSubmit}
           >
-            <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: "bold" }}>
+            <Typography sx={{ mb: 1, fontWeight: "bold" }}>
               Qual valor deseja depositar?
             </Typography>
 
             <NumericFormat
+              key={formKey}
               customInput={TextField}
               variant="standard"
               fullWidth
               thousandSeparator="."
               decimalSeparator=","
+              decimalScale={2}
+              fixedDecimalScale
               value={values.valor}
-              onValueChange={(v) => setFieldValue("valor", v.value)}
+              onValueChange={(v) => setFieldValue("valor", v.floatValue)}
               error={touched.valor && Boolean(errors.valor)}
               helperText={touched.valor && errors.valor}
               sx={{ mb: 4 }}
@@ -147,6 +136,7 @@ export default function PageDeposito() {
                   onClick={() => setFieldValue("conta", "conta-poupança")}
                 />
               </Box>
+
               {touched.conta && errors.conta && (
                 <Typography
                   color="error"
@@ -158,7 +148,12 @@ export default function PageDeposito() {
             </Box>
 
             <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-              <CButton color="primary" text="Concluir" type="submit" />
+              <CButton
+                color="primary"
+                text="Concluir"
+                type="submit"
+                disabled={loading}
+              />
             </Box>
           </Box>
         )}

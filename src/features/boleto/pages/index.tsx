@@ -3,7 +3,7 @@ import { Box, InputAdornment, TextField, Typography } from "@mui/material";
 import CButton from "@shared/components/CButton";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   useMutationPostExtrato,
   useQueryGetExtrato,
@@ -14,40 +14,51 @@ import { NumericFormat } from "react-number-format";
 
 interface FormValues {
   descricao: string;
-  valor: string;
+  valor?: number;
   conta: string;
 }
 
 const initialValues: FormValues = {
   descricao: "",
-  valor: "",
+  valor: undefined,
   conta: "",
 };
 
+const contaLabelMap: Record<string, string> = {
+  "conta-corrente": "Conta Corrente",
+  "conta-poupança": "Conta Poupança",
+};
+
+// Validações de campos do formulário
 const validationSchema = Yup.object({
   descricao: Yup.string().required("Informe a descrição do boleto"),
-  valor: Yup.string()
-    .required("Informe o valor do boleto")
-    .test(
-      "valor-maior-que-zero",
-      "O valor do boleto deve ser maior do que zero",
-      (value) => {
-        if (!value) return false;
 
-        const valorNumerico = Number(
-          value.replace(",", ".").replace("R$", "").trim()
-        );
+  valor: Yup.number()
+    .typeError("Informe um valor válido")
+    .moreThan(0, "O valor deve ser maior que zero")
+    .required("Informe o valor do boleto"),
 
-        return !Number.isNaN(valorNumerico) && valorNumerico > 0;
-      }
-    ),
-  conta: Yup.string().required("Selecione a conta para pagamento"),
+  conta: Yup.string().required(
+    "Selecione a conta de onde o valor será debitado"
+  ),
 });
 
 export default function PageBoleto() {
+  const [formKey, setFormKey] = useState(0);
   const [loading, setLoading] = useState(false);
   const { data } = useQueryGetExtrato();
   const postMutation = useMutationPostExtrato();
+
+  // Calculando saldo
+  const saldoPorConta = useMemo<Record<string, number>>(() => {
+    if (!data) return Object.create(null);
+
+    return data.reduce((acc, item: any) => {
+      const conta = item.conta ?? "global";
+      acc[conta] = (acc[conta] || 0) + Number(item.valor);
+      return acc;
+    }, Object.create(null));
+  }, [data]);
 
   return (
     <>
@@ -58,43 +69,32 @@ export default function PageBoleto() {
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={async (values, { resetForm }) => {
-          const valorNumerico = Number(
-            values.valor.replace(",", ".").replace("R$", "").trim()
-          );
-
-          if (Number.isNaN(valorNumerico) || valorNumerico <= 0) {
-            toast.warning("Digite um valor válido para o boleto.");
-            return;
-          }
-
-          const saldoConta = data
-            ?.filter((item: any) => !item.conta || item.conta === values.conta)
-            .reduce((acc: number, item: any) => acc + Number(item.valor), 0);
-
-          if ((saldoConta ?? 0) < valorNumerico) {
+          //Validação de saldo suficiente
+          const valorNumerico = values.valor ?? 0;
+          const saldoConta =
+            saldoPorConta[values.conta] ?? saldoPorConta["global"] ?? 0;
+          if (saldoConta < valorNumerico) {
             toast.warning("Saldo insuficiente para pagar o boleto.");
             return;
           }
 
-          const contaLabel =
-            values.conta === "conta-corrente"
-              ? "Conta Corrente"
-              : "Conta Poupança";
+          const now = new Date();
+          const contaLabel = contaLabelMap[values.conta] ?? values.conta;
+
+          setLoading(true);
 
           try {
-            setLoading(true);
-
             await postMutation.mutateAsync({
               values: {
                 tipo: `Boleto (${contaLabel})`,
                 descricao: values.descricao,
-                horario: new Date().toLocaleTimeString("pt-BR", {
+                horario: now.toLocaleTimeString("pt-BR", {
                   hour: "2-digit",
                   minute: "2-digit",
                 }),
                 valor: -Math.abs(valorNumerico),
                 icone: "LanguageIcon",
-                data: new Date().toISOString().slice(0, 10),
+                data: now.toISOString().slice(0, 10),
                 conta: values.conta,
               },
             });
@@ -107,11 +107,9 @@ export default function PageBoleto() {
             });
 
             resetForm();
-          } catch (e) {
-            console.error({
-              title: "Erro ao realizar pagamento do boleto.",
-              error: e,
-            });
+            setFormKey((k) => k + 1);
+          } catch (error) {
+            console.error("Erro ao realizar pagamento do boleto:", error);
             toast.error("Erro ao realizar pagamento do boleto.");
           } finally {
             setLoading(false);
@@ -152,13 +150,16 @@ export default function PageBoleto() {
             </Typography>
 
             <NumericFormat
+              key={formKey}
               customInput={TextField}
               variant="standard"
               fullWidth
               thousandSeparator="."
               decimalSeparator=","
+              decimalScale={2}
+              fixedDecimalScale
               value={values.valor}
-              onValueChange={(v) => setFieldValue("valor", v.value)}
+              onValueChange={(v) => setFieldValue("valor", v.floatValue)}
               error={touched.valor && Boolean(errors.valor)}
               helperText={touched.valor && errors.valor}
               sx={{ mb: 4 }}
@@ -199,7 +200,12 @@ export default function PageBoleto() {
             </Box>
 
             <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-              <CButton color="primary" text="Concluir" type="submit" />
+              <CButton
+                color="primary"
+                text="Concluir"
+                type="submit"
+                disabled={loading}
+              />
             </Box>
           </Box>
         )}
