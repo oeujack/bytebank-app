@@ -45,7 +45,6 @@ const validationSchema = Yup.object({
 
 export default function PageTransferir() {
   const [formKey, setFormKey] = useState(0);
-  const [loading, setLoading] = useState(false);
   const { data } = useQueryGetExtrato();
   const postMutation = useMutationPostExtrato();
 
@@ -62,7 +61,7 @@ export default function PageTransferir() {
 
   return (
     <>
-      <Loading show={loading} />
+      <Loading show={postMutation.isPending} />
       <Title title="Realizar tranferência" />
 
       <Formik
@@ -81,7 +80,6 @@ export default function PageTransferir() {
           const now = new Date();
           const contaLabel = contaLabelMap[values.conta] ?? values.conta;
 
-          setLoading(true);
           try {
             await postMutation.mutateAsync({
               values: {
@@ -110,8 +108,6 @@ export default function PageTransferir() {
           } catch (error) {
             console.error("Erro ao realizar a transferência:", error);
             toast.error("Erro ao realizar a transferência.");
-          } finally {
-            setLoading(false);
           }
         }}
       >
@@ -210,7 +206,7 @@ export default function PageTransferir() {
                 color="primary"
                 text="Concluir"
                 type="submit"
-                disabled={loading}
+                disabled={postMutation.isPending}
               />
             </Box>
           </Box>

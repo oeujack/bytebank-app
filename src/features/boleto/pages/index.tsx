@@ -45,7 +45,6 @@ const validationSchema = Yup.object({
 
 export default function PageBoleto() {
   const [formKey, setFormKey] = useState(0);
-  const [loading, setLoading] = useState(false);
   const { data } = useQueryGetExtrato();
   const postMutation = useMutationPostExtrato();
 
@@ -62,7 +61,7 @@ export default function PageBoleto() {
 
   return (
     <>
-      <Loading show={loading} />
+      <Loading show={postMutation.isPending} />
       <Title title="Pagar Boleto" />
 
       <Formik
@@ -80,8 +79,6 @@ export default function PageBoleto() {
 
           const now = new Date();
           const contaLabel = contaLabelMap[values.conta] ?? values.conta;
-
-          setLoading(true);
 
           try {
             await postMutation.mutateAsync({
@@ -111,8 +108,6 @@ export default function PageBoleto() {
           } catch (error) {
             console.error("Erro ao realizar pagamento do boleto:", error);
             toast.error("Erro ao realizar pagamento do boleto.");
-          } finally {
-            setLoading(false);
           }
         }}
       >
@@ -204,7 +199,7 @@ export default function PageBoleto() {
                 color="primary"
                 text="Concluir"
                 type="submit"
-                disabled={loading}
+                disabled={postMutation.isPending}
               />
             </Box>
           </Box>
