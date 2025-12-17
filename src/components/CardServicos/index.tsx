@@ -1,10 +1,10 @@
-import { options } from "@utils/optionsServices"
+import { optionsServices } from "@core/utils/optionsServices"
 import { Box, Typography } from "@mui/material"
 
 export default function CardServicos() {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", px: 4, py: 1 }}>
-      {options.map((item) => (
+      {optionsServices.map((item: string) => (
         <Typography
           key={item}
           variant="body2"

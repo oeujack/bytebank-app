@@ -26,33 +26,39 @@
     "noUncheckedSideEffectImports": true,
     "baseUrl": "./",
     "paths": {
+      "@app/*": [
+        "src/app/*"
+      ],
+      "@core/*": [
+        "src/core/*"
+      ],
+      "@shared/*": [
+        "src/shared/*"
+      ],
+      "@features/*": [
+        "src/features/*"
+      ],
       "@components/*": [
-        "src/components/*"
+        "src/shared/components/*"
       ],
-      "@services/*": [
-        "src/services/*"
+      "@routes": [
+        "src/routes/index"
       ],
-      "@pages/*": [
-        "src/pages/*"
-      ],
-      "@utils/*": [
-        "src/utils/*"
-      ],
-      "@hooks/*": [
-        "src/hooks/*"
+      "@routes/*": [
+        "src/routes/*"
       ],
       "@assets/*": [
         "src/assets/*"
       ],
       "@styles/*": [
-        "src/styles/*"
+        "src/shared/styles/*"
       ],
       "@config/*": [
-        "src/config/*"
+        "src/core/config/*"
       ],
-      "@store/*": [
-        "src/store/*"
-      ],
+      "@hooks/*": [
+        "src/shared/hooks/*"
+      ]
     }
   },
   "include": [
