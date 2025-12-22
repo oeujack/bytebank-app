@@ -3,70 +3,202 @@ import {
   getExtrato,
   postExtrato,
   updateExtrato,
-} from '../services/extratoService';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import type { Extrato } from '@shared/types';
-import { queryClient } from '@shared/hooks/queryClient';
-import type { AxiosError } from 'axios';
-import { toast } from 'react-toastify';
+} from "../services/extratoService";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type UseQueryOptions,
+} from "@tanstack/react-query";
+import type { Extrato } from "@shared/types";
+import type { AxiosError } from "axios";
+import { toast } from "react-toastify";
 
-export function useQueryGetExtrato() {
-  const useQueryGetExtrato = useQuery<Extrato[]>({
-    queryKey: ['useQueryGetExtrato'],
-    queryFn: () => getExtrato(),
-    staleTime: Infinity,
-    retry: 0,
-  });
-
-  return useQueryGetExtrato;
+interface ChartViewProps {
+  data: string;
+  entrada: number;
+  saida: number;
+  saldo: number;
 }
 
+export const EXTRATO_QUERY_KEY = ["extrato"];
+
+export function useQueryGetExtrato<TSelect = Extrato[]>(
+  options?: Omit<
+    UseQueryOptions<Extrato[], Error, TSelect>,
+    "queryKey" | "queryFn"
+  >
+) {
+  return useQuery<Extrato[], Error, TSelect>({
+    queryKey: EXTRATO_QUERY_KEY,
+    queryFn: getExtrato,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 30,
+    ...options,
+  });
+}
+
+
+
+
 export function useMutationPostExtrato() {
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: ({ values }: { values: Omit<Extrato, 'id'> }) =>
+    mutationFn: ({ values }: { values: Omit<Extrato, "id"> }) =>
       postExtrato(values),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['useQueryGetExtrato'],
-      });
+
+    onMutate: async ({ values }) => {
+      await queryClient.cancelQueries({ queryKey: EXTRATO_QUERY_KEY });
+
+      const previousExtrato =
+        queryClient.getQueryData<Extrato[]>(EXTRATO_QUERY_KEY);
+
+      if (previousExtrato) {
+        queryClient.setQueryData<Extrato[]>(EXTRATO_QUERY_KEY, [
+          ...previousExtrato,
+          {
+            ...values,
+            id: `temp-${Date.now()}`,
+            valor: Number(values.valor),
+          },
+        ]);
+      }
+
+      return { previousExtrato };
     },
-    onError: (error: AxiosError) => {
+
+    onError: (error: AxiosError, __, context) => {
+      if (context?.previousExtrato) {
+        queryClient.setQueryData(EXTRATO_QUERY_KEY, context.previousExtrato);
+      }
+
       const message =
-        (error.response?.data as AxiosError)?.message ?? 'Erro inesperado';
+        (error.response?.data as any)?.message ?? "Erro ao adicionar extrato";
+
+      console.error("Erro ao inserir:", error);
       toast.error(message);
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: EXTRATO_QUERY_KEY });
     },
   });
 }
 
 export function useMutationUpdateExtrato() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: ({ id, valor }: { id: string; valor: number }) =>
       updateExtrato(id, valor),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['useQueryGetExtrato'],
-      });
+
+    onMutate: async ({ id, valor }) => {
+      await queryClient.cancelQueries({ queryKey: EXTRATO_QUERY_KEY });
+
+      const previousExtrato =
+        queryClient.getQueryData<Extrato[]>(EXTRATO_QUERY_KEY);
+
+      if (previousExtrato) {
+        queryClient.setQueryData<Extrato[]>(
+          EXTRATO_QUERY_KEY,
+          previousExtrato.map((item) =>
+            item.id === id ? { ...item, valor: Number(valor) } : item
+          )
+        );
+      }
+
+      return { previousExtrato };
     },
-    onError: (error: AxiosError) => {
-      const message =
-        (error.response?.data as AxiosError)?.message ?? 'Erro inesperado';
-      toast.error(message);
+
+    onError: (error, __, context) => {
+      if (context?.previousExtrato) {
+        queryClient.setQueryData(EXTRATO_QUERY_KEY, context.previousExtrato);
+      }
+
+      console.error("Erro ao atualizar:", error);
+      toast.error("Erro ao atualizar");
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: EXTRATO_QUERY_KEY });
     },
   });
 }
 
 export function useMutationDeleteExtrato() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: ({ id }: { id: string }) => deleteExtrato(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['useQueryGetExtrato'],
-      });
+
+    onMutate: async ({ id }) => {
+      await queryClient.cancelQueries({ queryKey: EXTRATO_QUERY_KEY });
+
+      const previousExtrato =
+        queryClient.getQueryData<Extrato[]>(EXTRATO_QUERY_KEY);
+
+      if (previousExtrato) {
+        queryClient.setQueryData<Extrato[]>(
+          EXTRATO_QUERY_KEY,
+          previousExtrato.filter((item) => item.id !== id)
+        );
+      }
+
+      return { previousExtrato };
     },
-    onError: (error: AxiosError) => {
-      const message =
-        (error.response?.data as AxiosError)?.message ?? 'Erro inesperado';
-      toast.error(message);
+
+    onError: (error, __, context) => {
+      if (context?.previousExtrato) {
+        queryClient.setQueryData(EXTRATO_QUERY_KEY, context.previousExtrato);
+      }
+
+      console.error("Erro ao deletar:", error);
+      toast.error("Erro ao deletar");
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: EXTRATO_QUERY_KEY });
     },
   });
 }
+
+export function useChartExtrato() {
+  return useQueryGetExtrato<ChartViewProps[]>({
+    select: (extrato) => {
+      const agrupado: Record<string, { entrada: number; saida: number }> = {};
+
+      extrato.forEach((item) => {
+        if (!item.data || typeof item.valor !== "number") return;
+
+        if (!agrupado[item.data]) {
+          agrupado[item.data] = { entrada: 0, saida: 0 };
+        }
+
+        if (item.valor >= 0) {
+          agrupado[item.data].entrada += item.valor;
+        } else {
+          agrupado[item.data].saida += Math.abs(item.valor);
+        }
+      });
+
+      let saldoAcumulado = 0;
+
+      return Object.entries(agrupado)
+        .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
+        .map(([data, valores]) => {
+          saldoAcumulado += valores.entrada - valores.saida;
+
+          return {
+            data: data.split("-").reverse().join("/"),
+            entrada: valores.entrada,
+            saida: valores.saida,
+            saldo: saldoAcumulado,
+          };
+        });
+    },
+  });
+}
+
+
+

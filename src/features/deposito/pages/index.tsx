@@ -36,11 +36,10 @@ const validationSchema = Yup.object({
 export default function PageDeposito() {
   const [formKey, setFormKey] = useState(0);
   const postMutation = useMutationPostExtrato();
-  const [loading, setLoading] = useState(false);
 
   return (
     <>
-      <Loading show={loading} />
+      <Loading show={postMutation.isPending} />
       <Title title="Realizar depósito" />
 
       <Formik
@@ -50,8 +49,6 @@ export default function PageDeposito() {
           const valorNumerico = values.valor ?? 0;
           const contaLabel = contaLabelMap[values.conta] ?? values.conta;
           const now = new Date();
-
-          setLoading(true);
 
           try {
             await postMutation.mutateAsync({
@@ -81,8 +78,6 @@ export default function PageDeposito() {
           } catch (error) {
             console.error("Erro ao realizar o depósito:", error);
             toast.error("Erro ao realizar o depósito.");
-          } finally {
-            setLoading(false);
           }
         }}
       >
@@ -152,7 +147,7 @@ export default function PageDeposito() {
                 color="primary"
                 text="Concluir"
                 type="submit"
-                disabled={loading}
+                disabled={postMutation.isPending}
               />
             </Box>
           </Box>

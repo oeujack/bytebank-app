@@ -13,14 +13,19 @@ const initialState: AuthState = {
   isAuthenticated: !!sessionStorage.getItem('token'),
 };
 
+const MOCK_CREDENTIALS = {
+  username: 'emmaj',
+  password: 'emmajpass',
+};
+
 export const login = createAsyncThunk(
   'auth/login',
   async (
-    values: { username: string; password: string },
+    _values: { username: string; password: string },
     { dispatch, rejectWithValue }
   ) => {
     try {
-      await getLogin(values);
+      await getLogin(MOCK_CREDENTIALS);
       dispatch(setIsAuthenticated(true));
     } catch (error) {
       return rejectWithValue((error as Error).message);

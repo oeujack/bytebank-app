@@ -1,85 +1,81 @@
-import { Box, Typography } from '@mui/material';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import { useState, useMemo } from 'react';
-import CButton from '../CButton';
-import { useQueryGetExtrato } from '@features/extrato/hooks';
-import { Link } from 'react-router-dom';
-import type { Extrato } from '@shared/types';
+import { Box, Typography } from "@mui/material";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import { useState, useMemo } from "react";
+import CButton from "../CButton";
+import { useQueryGetExtrato } from "@features/extrato/hooks";
+import { Link } from "react-router-dom";
 
 export default function CardPoupanca() {
   const [showedBalance, setShowBalance] = useState(false);
-  const { data } = useQueryGetExtrato();
+  const { data: extrato = [] } = useQueryGetExtrato();
 
   function handleShowBalance() {
     setShowBalance(!showedBalance);
   }
 
-  const totalPoupanca = useMemo(() => {
-    if (!data) return null;
+  const saldo = useMemo(() => {
+    return extrato
+      .filter((item) => item.conta === "conta-poupança")
+      .reduce((acc, item) => acc + Number(item.valor), 0);
+  }, [extrato]);
 
-    const total = data
-      .filter((item: Extrato) => item.conta === 'conta-poupança' && typeof item.valor === 'number')
-      .reduce((acc: number, item: Extrato) => acc + item.valor, 0);
-
-    return total.toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-      minimumFractionDigits: 2,
+  const saldoFormatado = useMemo(() => {
+    return saldo.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
     });
-  }, [data]);
+  }, [saldo]);
 
   return (
-    <>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        mt: 1,
+      }}
+    >
       <Box
         sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          mt: 1,
+          display: "flex",
+          alignItems: "center",
+          gap: 2,
+          px: 4,
         }}
       >
-        <Box
+        <Typography
+          variant="h4"
           sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-            px: 4,
+            filter: showedBalance ? "none" : "blur(6px)",
+            transition: "filter 0.4s",
+            userSelect: showedBalance ? "text" : "none",
           }}
         >
-          <Typography
-            variant="h4"
+          {saldoFormatado ?? "R$ 0,00"}
+        </Typography>
+
+        {showedBalance ? (
+          <VisibilityOffIcon
             sx={{
-              filter: showedBalance ? 'none' : 'blur(6px)',
-              transition: 'filter 0.4s',
-              userSelect: showedBalance ? 'text' : 'none',
+              cursor: "pointer",
+              fontSize: { xs: "20px", sm: "24px" },
             }}
-          >
-            {totalPoupanca ?? 'R$ 0,00'}
-          </Typography>
-
-          {showedBalance ? (
-            <VisibilityOffIcon
-              sx={{
-                cursor: 'pointer',
-                fontSize: { xs: '20px', sm: '24px' },
-              }}
-              onClick={handleShowBalance}
-            />
-          ) : (
-            <VisibilityIcon
-              sx={{
-                cursor: 'pointer',
-                fontSize: { xs: '20px', sm: '24px' },
-              }}
-              onClick={handleShowBalance}
-            />
-          )}
-        </Box>
-
-        <Link to="/deposito">
-          <CButton color="primary" text="Depositar" />
-        </Link>
+            onClick={handleShowBalance}
+          />
+        ) : (
+          <VisibilityIcon
+            sx={{
+              cursor: "pointer",
+              fontSize: { xs: "20px", sm: "24px" },
+            }}
+            onClick={handleShowBalance}
+          />
+        )}
       </Box>
-    </>
+
+      <Link to="/deposito">
+        <CButton color="primary" text="Depositar" />
+      </Link>
+    </Box>
   );
 }
