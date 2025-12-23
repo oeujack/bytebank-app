@@ -1,2 +1,3 @@
-export { setFiltroData, setFiltroBusca } from './extratoFilterSlice';
+export { setFiltroData, setFiltroBusca, type FiltroData } from './extratoFilterSlice';
 export { default as extratoFilterReducer } from './extratoFilterSlice';
+export { uploadPdf, removePdf } from './pdfSlice';
