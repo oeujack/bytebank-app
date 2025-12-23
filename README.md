@@ -27,9 +27,29 @@ Decidimos também reimaginar em alguns pontos o layout proposto ara o projeto, q
 
 ## Tecnologias Utilizadas
 
-- [React](https://react.dev)
-- [Material UI](https://mui.com)
-- [json-server](https://github.com/typicode/json-server) (mock API)
+### Core
+- [React](https://react.dev) - Biblioteca para construção de interfaces
+- [TypeScript](https://www.typescriptlang.org/) - Superset JavaScript com tipagem estática
+- [Vite](https://vitejs.dev/) - Build tool e dev server
+
+### UI & Styling
+- [Material UI](https://mui.com) - Componentes de interface
+- [Emotion](https://emotion.sh/) - CSS-in-JS
+
+### State Management & Data Fetching
+- [Redux Toolkit](https://redux-toolkit.js.org/) - Gerenciamento de estado global
+- [React Query](https://tanstack.com/query/) - Cache e sincronização de dados
+- [Axios](https://axios-http.com/) - Cliente HTTP
+
+### Forms & Validation
+- [Formik](https://formik.org/) - Gerenciamento de formulários
+- [Yup](https://github.com/jquense/yup) - Validação de schemas
+- [React Number Format](https://github.com/s-yadav/react-number-format) - Formatação de números
+
+### Development Tools
+- [ESLint](https://eslint.org/) - Linting de código
+- [Storybook](https://storybook.js.org/) - Documentação de componentes
+- [json-server](https://github.com/typicode/json-server) - Mock API
 
 ## Como rodar o projeto
 
@@ -75,25 +95,68 @@ Este projeto utiliza o [Storybook](https://storybook.js.org/) para documentar e 
 
 ## Estrutura do Projeto
 
+O projeto segue uma arquitetura modular organizada em quatro camadas principais:
+
+```
 src/
-├─ assets/         # Imagens e ícones
-├─ components/     # Componentes reutilizáveis da interface
-├─ config/         # Configurações e variáveis de ambiente
-├─ hooks/          # Ganchos para consultas de dados
-├─ pages/          # Páginas principais (dashboard, extrato, etc)
-├─ routes/         # Definição de rotas do sistema
-├─ services/       # Camada de serviço (APIs, integrações)
-├─ store/          # Gerenciamento de estado (Redux)
-├─ types/          # Tipagens TypeScript
-├─ utils/          # Funções utilitárias e constantes
-├─ stories/        # Documentação visual de componentes
+├── app/                    # Configurações centrais da aplicação
+│   └── providers/         # Store Redux e provedores globais
+├── core/                   # Configurações e serviços compartilhados
+│   ├── config/            # Variáveis de ambiente
+│   └── utils/             # Utilitários centrais
+├── features/               # Funcionalidades por domínio
+│   ├── auth/              # Autenticação e login
+│   ├── extrato/           # Gestão de extratos
+│   ├── boleto/            # Pagamento de boletos
+│   ├── deposito/          # Depósitos bancários
+│   ├── transferencia/     # Transferências
+│   ├── dashboard/         # Dashboard principal
+│   ├── home/              # Página inicial
+│   └── common/            # Componentes comuns
+├── shared/                 # Recursos compartilhados
+│   ├── components/        # Componentes reutilizáveis
+│   ├── hooks/             # Hooks customizados
+│   ├── types/             # Tipagens compartilhadas
+│   └── utils/             # Utilitários globais
+├── routes/                 # Rotas com lazy loading
+└── stories/               # Documentação de componentes
 json-server/
-└─ db.json         # Base de dados mockada (extratos e operações)
+└── db.json                # Mock API
+```
+
+### Arquitetura por Camadas
+
+- **Features**: Cada funcionalidade isolada com páginas, componentes, hooks, serviços e stores próprios
+- **Shared**: Componentes e utilitários reutilizáveis globalmente
+- **Core**: Configurações centrais e serviços compartilhados
+- **API**: Camada de dados mockada para desenvolvimento
+
+## Otimizações de Performance
+
+### Lazy Loading
+- Todas as páginas são carregadas sob demanda usando `React.lazy()`
+- Implementação de `Suspense` para loading states
+- Redução significativa do bundle inicial
+
+### Cache Inteligente
+- React Query para cache de requisições HTTP
+- Configuração de `staleTime` (5 minutos) e `gcTime` (30 minutos)
+- Minimização de requisições desnecessárias
+
+### Programação Reativa
+- Redux Toolkit para gerenciamento de estado global
+- React Query para estado assíncrono
+- Validações reativas em formulários com Yup
+- Formatação em tempo real de valores monetários
+- Filtros e buscas responsivas
 
 ## Observações
 
-- O projeto utiliza o `json-server` para simular uma API REST. Certifique-se de deixá-lo rodando para que as operações funcionem corretamente.
-- Os dados não são persistidos em um banco real, apenas no arquivo `db.json`.
+- O projeto utiliza arquitetura modular com lazy loading para otimização de performance
+- Cache inteligente implementado com React Query para reduzir requisições
+- O `json-server` simula uma API REST. Certifique-se de deixá-lo rodando para que as operações funcionem corretamente
+- Os dados não são persistidos em um banco real, apenas no arquivo `db.json`
+- Interface responsiva e moderna
 
 ## Licença
 
