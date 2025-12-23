@@ -3,7 +3,7 @@
 Este projeto foi desenvolvido pelos alunos:
  - Diego Minelli - RM362536
  - Jackson dos Santos - RM359898
- - Jefferson Guerra - RM363144
+ - Jerfeson Guerra - RM363144
  - Raul Ferreira - RM362993
  - Thomas Aguiar - RM363369
 
