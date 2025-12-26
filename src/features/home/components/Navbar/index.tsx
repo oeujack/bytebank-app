@@ -11,159 +11,132 @@ import MenuIcon from '@mui/icons-material/Menu';
 import logo from '@assets/logo.png';
 import { useState } from 'react';
 import CButton from '@shared/components/CButton';
-import { Link } from 'react-router-dom';
 import { Login } from '@features/auth/pages/Login';
 
 export default function Navbar() {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [open, setOpen] = useState(false);
 
-  function handleOpen() {
-    setOpen(true);
-  }
-
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
+  const navLinks = [
+    'Seguro de vida',
+    'Conta PJ',
+    'Cartão de crédito',
+    'Contato',
+  ];
 
   return (
     <Box
       sx={{
-        bgcolor: 'black',
-        height: '90px',
+        bgcolor: isMobile ? 'rgba(0, 0, 0, 0.4)' : 'transparent',
+        backdropFilter: isMobile ? 'blur(10px)' : 'none',
+        WebkitBackdropFilter: isMobile ? 'blur(10px)' : 'none',
+        height: { xs: '70px', md: '90px' },
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        px: 3,
+        px: { xs: 2, md: 6 },
         position: 'fixed',
         top: 0,
         width: '100%',
         zIndex: 1000,
+        borderBottom: isMobile ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
+        transition: 'all 0.3s ease',
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <img src={logo} alt="Logo Bytebank" width={150} />
+      <Box sx={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+        <img src={logo} alt="Logo Bytebank" width={140} />
       </Box>
 
       {!isMobile && (
-        <Box sx={{ display: 'flex', gap: 4, color: '#236B7A' }}>
-          <Button
-            disableRipple
-            sx={{
-              fontWeight: '600',
-              textTransform: 'none',
-              fontSize: '18px',
-            }}
-          >
-            Sobre
-          </Button>
-          <Button
-            disableRipple
-            sx={{
-              fontWeight: '600',
-              textTransform: 'none',
-              fontSize: '18px',
-            }}
-          >
-            Serviços
-          </Button>
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 1,
+            bgcolor: 'rgba(255, 255, 255, 0.08)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '50px',
+            p: '6px',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+          }}
+        >
+          {navLinks.map((link) => (
+            <Button
+              key={link}
+              sx={{
+                color: '#fff',
+                textTransform: 'none',
+                borderRadius: '50px',
+                px: 2,
+                fontSize: '0.85rem',
+                fontWeight: 500,
+                '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.1)' },
+              }}
+            >
+              {link}
+            </Button>
+          ))}
         </Box>
       )}
 
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        {!isMobile && (
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          justifyContent: 'flex-end',
+          flex: 1,
+        }}
+      >
+        {!isMobile ? (
           <>
+            <Button
+              sx={{ color: '#fff', textTransform: 'none', fontWeight: 600 }}
+              onClick={() => setOpen(true)}
+            >
+              Área Exclusiva
+            </Button>
             <CButton
-              text="Abrir minha conta"
-              color="primary"
+              text="Abrir conta"
               sx={{
-                borderRadius: 1,
-                textTransform: 'none',
                 whiteSpace: 'nowrap',
+                textTransform: 'none',
+                bgcolor: '#fff',
+                color: '#000',
+                borderRadius: '50px',
+                px: 4,
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                boxShadow: 'none',
+                '&:hover': {
+                  bgcolor: '#e0e0e0',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                },
               }}
             />
-            <Login open={open} onClose={() => setOpen(false)} />
-
-            <CButton
-              text="Já tenho conta"
-              sx={{
-                bgcolor: 'transparent',
-                borderRadius: 1,
-                border: '2px solid #236B7A',
-                textTransform: 'none',
-                whiteSpace: 'nowrap',
-              }}
-              onClick={handleOpen}
-            />
           </>
-        )}
-
-        {isMobile && (
-          <>
-            <IconButton
-              size="large"
-              edge="end"
-              color="inherit"
-              aria-label="menu"
-              onClick={handleMenuOpen}
-            >
-              <MenuIcon sx={{ color: '#236B7A' }} />
-            </IconButton>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
-              <MenuItem onClick={handleMenuClose}>Sobre</MenuItem>
-              <MenuItem onClick={handleMenuClose}>Serviços</MenuItem>
-              <MenuItem onClick={handleMenuClose}>
-                <Button
-                  fullWidth
-                  sx={{
-                    bgcolor: '#236B7A',
-                    color: 'white',
-                    borderRadius: 1,
-                    textTransform: 'none',
-                    fontWeight: 600,
-                    ':hover': { bgcolor: '#1c5562' },
-                  }}
-                >
-                  Abrir minha conta
-                </Button>
-              </MenuItem>
-              <MenuItem onClick={handleMenuClose}>
-                <Link to="/dashboard" style={{ width: '100%' }}>
-                  <Button
-                    fullWidth
-                    sx={{
-                      bgcolor: 'transparent',
-                      color: '#236B7A',
-                      borderRadius: 1,
-                      border: '2px solid #236B7A',
-                      textTransform: 'none',
-                      fontWeight: 600,
-                      ':hover': {
-                        bgcolor: '#236B7A',
-                        color: 'white',
-                      },
-                    }}
-                  >
-                    Já tenho conta
-                  </Button>
-                </Link>
-              </MenuItem>
-            </Menu>
-          </>
+        ) : (
+          <IconButton onClick={(e) => setAnchorEl(e.currentTarget)}>
+            <MenuIcon sx={{ color: '#fff' }} />
+          </IconButton>
         )}
       </Box>
-      {open && <Login onClose={() => setOpen(false)} open={open} />}
+
+      <Login open={open} onClose={() => setOpen(false)} />
+
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={() => setAnchorEl(null)}
+      >
+        {navLinks.map((link) => (
+          <MenuItem key={link} onClick={() => setAnchorEl(null)}>
+            {link}
+          </MenuItem>
+        ))}
+        <MenuItem onClick={() => setOpen(true)}>Sign in</MenuItem>
+      </Menu>
     </Box>
   );
 }

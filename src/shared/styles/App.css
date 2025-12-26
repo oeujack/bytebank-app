@@ -16,3 +16,7 @@
 .actions :hover {
   background-color: #363636;
 }
+
+*::-webkit-scrollbar {
+  display: none;
+}

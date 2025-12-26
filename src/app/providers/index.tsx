@@ -10,7 +10,7 @@ import { store } from './store';
 import { BrowserRouter } from 'react-router-dom';
 
 export default function AppProviders() {
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -3,8 +3,6 @@ import {
   Box,
   IconButton,
   Dialog,
-  DialogTitle,
-  DialogContent,
   Button,
   TextField,
   Typography,
@@ -12,13 +10,13 @@ import {
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-
-import img from '@assets/imgLogin.png';
+import { motion } from 'framer-motion';
 import { useDispatch } from 'react-redux';
 import type { AppDispatch } from '@app/providers/store';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { loginThunk } from '@features/auth/store/useAuthStore';
+import { useTheme } from '@shared/styles/useTheme';
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().email('E-mail inválido').required('Usuário obrigatório'),
@@ -35,163 +33,175 @@ export function Login({
   onClose: () => void;
 }) {
   const [showPassword, setShowPassword] = useState(false);
-
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  return (
-    <>
-      <Dialog
-        open={open}
-        onClose={onClose}
-        sx={{
-          '.MuiPaper-root': {
-            bgcolor: 'rgba(255,255,255,0.7)',
-            backdropFilter: 'blur(2rem)',
-            borderRadius: 4,
-            maxWidth: 600,
-          },
-        }}
-      >
-        <DialogContent>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Box
-              flex={1}
-              p={2}
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <img
-                src={img}
-                alt="Login"
-                style={{ maxWidth: '100%', borderRadius: 8 }}
-              />
-            </Box>
-            <Box flex={1}>
-              <DialogTitle
-                variant="h4"
-                sx={{
-                  textAlign: 'center',
-                  fontFamily: 'Montserrat, sans-serif',
-                }}
-              >
-                Acesso Bytebank
-              </DialogTitle>
-              <Typography>
-                Informe os seus dados abaixo para acessá-la.
-              </Typography>
+  const { inputStyle } = useTheme();
+  const cardVariants = {
+    hidden: { x: 50, opacity: 0 },
+    visible: {
+      x: 0,
+      opacity: 1,
+      transition: {
+        type: 'spring',
+        stiffness: 100,
+        damping: 15,
+        duration: 0.8,
+      },
+    },
+    exit: { x: 50, opacity: 0 },
+  };
 
-              <Formik
-                initialValues={{
-                  email: '',
-                  password: '',
-                }}
-                validationSchema={validationSchema}
-                onSubmit={async (values, { setSubmitting, resetForm }) => {
-                  setSubmitting(true);
-                  try {
-                    await dispatch(
-                      loginThunk({
-                        email: values.email,
-                        password: values.password,
-                      })
-                    ).unwrap();
-                    
-                    toast.success('Login realizado com sucesso!');
-                    navigate('/dashboard');
-                    resetForm();
-                  } catch (error) {
-                    toast.error('Erro ao efetuar login!');
-                    console.error('Erro login:', error);
-                  } finally {
-                    setSubmitting(false);
-                  }
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="xs"
+      slotProps={{
+        backdrop: {
+          sx: {
+            backgroundColor: 'rgba(0, 0, 0, 0.2)',
+            backdropFilter: 'blur(4px)',
+          },
+        },
+      }}
+      PaperProps={{
+        component: motion.div,
+        variants: cardVariants,
+        initial: 'hidden',
+        animate: 'visible',
+        exit: 'exit',
+        sx: {
+          bgcolor: 'rgba(255, 255, 255, 0.95)',
+          borderRadius: '24px',
+          p: 2,
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+          overflow: 'hidden',
+        },
+      }}
+    >
+      <Box sx={{ p: 3 }}>
+        <Typography
+          variant="h3"
+          sx={{ fontWeight: 600, mb: 1, color: '#1a1a1a' }}
+        >
+          Olá novamente!
+        </Typography>
+        <Typography variant="body2" sx={{ color: '#666', mb: 4 }}>
+          Bem-vindo de volta ao Bytebank. Preencha seus dados para acessar sua
+          conta.
+        </Typography>
+
+        <Formik
+          initialValues={{
+            email: '',
+            password: '',
+          }}
+          validationSchema={validationSchema}
+          onSubmit={async (values, { setSubmitting, resetForm }) => {
+            setSubmitting(true);
+            try {
+              await dispatch(
+                loginThunk({
+                  email: values.email,
+                  password: values.password,
+                })
+              ).unwrap();
+
+              toast.success('Login realizado com sucesso!');
+              navigate('/dashboard');
+              resetForm();
+            } catch (error) {
+              toast.error('Erro ao efetuar login!');
+              console.error('Erro login:', error);
+            } finally {
+              setSubmitting(false);
+            }
+          }}
+        >
+          {({ isSubmitting, handleSubmit, handleChange, errors, touched }) => (
+            <Box component="form" onSubmit={handleSubmit}>
+              <Typography variant="caption" sx={{ fontWeight: 700, ml: 1 }}>
+                E-mail
+              </Typography>
+              <TextField
+                fullWidth
+                name="email"
+                placeholder="Digite o nº da conta ou ID"
+                variant="outlined"
+                margin="dense"
+                onChange={handleChange}
+                error={touched.email && Boolean(errors.email)}
+                sx={inputStyle}
+              />
+
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="caption" sx={{ fontWeight: 700, ml: 1 }}>
+                  Senha
+                </Typography>
+                <TextField
+                  fullWidth
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  variant="outlined"
+                  margin="dense"
+                  onChange={handleChange}
+                  sx={inputStyle}
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <IconButton
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      ),
+                    },
+                  }}
+                />
+              </Box>
+
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  disabled={isSubmitting}
+                  sx={{
+                    mt: 4,
+                    py: 1.5,
+                    borderRadius: '12px',
+                    bgcolor: '#1a1a1a',
+                    color: 'white',
+                    textTransform: 'none',
+                    fontSize: '1rem',
+                    fontWeight: 600,
+                    '&:hover': { bgcolor: '#333' },
+                  }}
+                >
+                  {isSubmitting ? 'Entrando...' : 'Entrar'}
+                </Button>
+              </motion.div>
+
+              <Button
+                fullWidth
+                sx={{
+                  mt: 2,
+                  textTransform: 'none',
+                  color: '#1a1a1a',
+                  fontWeight: 600,
                 }}
               >
-                {({
-                  isSubmitting,
-                  handleSubmit,
-                  handleChange,
-                  handleBlur,
-                  touched,
-                  errors,
-                  values,
-                }) => (
-                  <Box component="form" noValidate onSubmit={handleSubmit}>
-                    <TextField
-                      name="email"
-                      label="E-mail"
-                      type="email"
-                      color="success"
-                      variant="outlined"
-                      size="small"
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      autoComplete="off"
-                      error={touched.email && Boolean(errors.email)}
-                      helperText={errors.email || ' '}
-                      required
-                      fullWidth
-                      sx={{ mt: 3 }}
-                      slotProps={{
-                        input: {
-                          sx: { borderRadius: 3 },
-                        },
-                      }}
-                    />
-                    <TextField
-                      name="password"
-                      label="Senha"
-                      size="small"
-                      type={showPassword ? 'text' : 'password'}
-                      variant="outlined"
-                      color="success"
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      error={touched.password && Boolean(errors.password)}
-                      helperText={errors.password || ' '}
-                      required
-                      fullWidth
-                      sx={{ mt: 1.5 }}
-                      slotProps={{
-                        input: {
-                          sx: { borderRadius: 3 },
-                          endAdornment: values.password.length > 0 && (
-                            <IconButton
-                              onClick={() => setShowPassword(!showPassword)}
-                            >
-                              {showPassword ? (
-                                <VisibilityOff />
-                              ) : (
-                                <Visibility />
-                              )}
-                            </IconButton>
-                          ),
-                        },
-                      }}
-                    />
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      fullWidth
-                      disabled={isSubmitting}
-                      sx={{
-                        mt: 1,
-                        borderRadius: 3,
-                        background:
-                          'linear-gradient(45deg,rgb(78, 143, 80) 30%,rgb(76, 180, 81) 90%)',
-                        color: 'white',
-                      }}
-                    >
-                      {isSubmitting ? 'Validando...' : 'Entrar'}
-                    </Button>
-                  </Box>
-                )}
-              </Formik>
+                Abrir uma conta corrente
+              </Button>
             </Box>
-          </Box>
-        </DialogContent>
-      </Dialog>
-    </>
+          )}
+        </Formik>
+      </Box>
+    </Dialog>
   );
 }
