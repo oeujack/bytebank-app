@@ -4,7 +4,6 @@ import { PrivateRoute, PublicRoute } from '@shared/components';
 import { Layout } from '@features/common/pages/Layout';
 import { Loading } from '@shared/components/Loading';
 
-// Lazy loading das páginas para melhor performance
 const PageDashboard = lazy(() => import('@features/dashboard/pages'));
 const PageBoleto = lazy(() => import('@features/boleto/pages'));
 const PageDeposito = lazy(() => import('@features/deposito/pages'));
@@ -18,59 +17,59 @@ export default function Rotas() {
     <Suspense fallback={<Loading />}>
       <Routes>
         <Route element={<Layout />}>
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute>
-              <PageDashboard />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/boleto"
-          element={
-            <PrivateRoute>
-              <PageBoleto />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/deposito"
-          element={
-            <PrivateRoute>
-              <PageDeposito />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/extrato"
-          element={
-            <PrivateRoute>
-              <PageExtrato />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/transferir"
-          element={
-            <PrivateRoute>
-              <PageTransferir />
-            </PrivateRoute>
-          }
-        />
-        <Route path="*" element={<PageNotFound />} />
-      </Route>
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <PageDashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/boleto"
+            element={
+              <PrivateRoute>
+                <PageBoleto />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/deposito"
+            element={
+              <PrivateRoute>
+                <PageDeposito />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/extrato"
+            element={
+              <PrivateRoute>
+                <PageExtrato />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/transferir"
+            element={
+              <PrivateRoute>
+                <PageTransferir />
+              </PrivateRoute>
+            }
+          />
+          <Route path="*" element={<PageNotFound />} />
+        </Route>
 
-      <Route
-        path="/home"
-        element={
-          <PublicRoute>
-            <PageHome />
-          </PublicRoute>
-        }
-      />
+        <Route
+          path="/home"
+          element={
+            <PublicRoute>
+              <PageHome />
+            </PublicRoute>
+          }
+        />
 
-      <Route path="/" element={<Navigate to="/home" />} />
+        <Route path="/" element={<Navigate to="/home" />} />
       </Routes>
     </Suspense>
   );

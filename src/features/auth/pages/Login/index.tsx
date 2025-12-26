@@ -12,27 +12,16 @@ import {
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { Slide, toast } from 'react-toastify';
 
 import img from '@assets/imgLogin.png';
-
-import { login } from '@features/auth/store';
 import { useDispatch } from 'react-redux';
 import type { AppDispatch } from '@app/providers/store';
 import { useNavigate } from 'react-router-dom';
-
-interface LoginValues {
-  username: string;
-  password: string;
-}
-
-const initialValues: LoginValues = {
-  username: '',
-  password: '',
-};
+import { toast } from 'react-toastify';
+import { loginThunk } from '@features/auth/store/useAuthStore';
 
 const validationSchema = Yup.object().shape({
-  username: Yup.string().required('Usuário obrigatório'),
+  email: Yup.string().email('E-mail inválido').required('Usuário obrigatório'),
   password: Yup.string()
     .min(4, 'Mínimo de 4 caracteres')
     .required('Senha obrigatória'),
@@ -93,49 +82,27 @@ export function Login({
               </Typography>
 
               <Formik
-                initialValues={initialValues}
+                initialValues={{
+                  email: '',
+                  password: '',
+                }}
                 validationSchema={validationSchema}
-                onSubmit={async (values, { setSubmitting }) => {
+                onSubmit={async (values, { setSubmitting, resetForm }) => {
+                  setSubmitting(true);
                   try {
-                    await dispatch(login(values)).unwrap();
+                    await dispatch(
+                      loginThunk({
+                        email: values.email,
+                        password: values.password,
+                      })
+                    ).unwrap();
 
-                    toast.success(
-                      <div style={{ display: 'block', paddingRight: '20px' }}>
-                        <span>Login realizado com sucesso!</span>
-                      </div>,
-                      {
-                        position: 'bottom-right',
-                        autoClose: 5000,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                        progress: undefined,
-                        theme: 'colored',
-                        transition: Slide,
-                      }
-                    );
+                    toast.success('Login realizado com sucesso!');
                     navigate('/dashboard');
-                    onClose();
+                    resetForm();
                   } catch (error) {
-                    toast.error(
-                      <div style={{ display: 'block', paddingRight: '20px' }}>
-                        <span>
-                          Erro ao realizar login. Verifique suas credenciais.
-                        </span>
-                      </div>,
-                      {
-                        position: 'bottom-right',
-                        autoClose: 5000,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                        progress: undefined,
-                        theme: 'colored',
-                        transition: Slide,
-                      }
-                    );
+                    toast.error('Erro ao efetuar login!');
+                    console.error('Erro login:', error);
                   } finally {
                     setSubmitting(false);
                   }
@@ -152,17 +119,17 @@ export function Login({
                 }) => (
                   <Box component="form" noValidate onSubmit={handleSubmit}>
                     <TextField
-                      name="username"
-                      label="Usuário"
-                      type="string"
+                      name="email"
+                      label="E-mail"
+                      type="email"
                       color="success"
                       variant="outlined"
                       size="small"
                       onChange={handleChange}
                       onBlur={handleBlur}
                       autoComplete="off"
-                      error={touched.username && Boolean(errors.username)}
-                      helperText={errors.username || ' '}
+                      error={touched.email && Boolean(errors.email)}
+                      helperText={errors.email || ' '}
                       required
                       fullWidth
                       sx={{ mt: 3 }}
