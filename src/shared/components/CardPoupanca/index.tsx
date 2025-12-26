@@ -16,7 +16,7 @@ export default function CardPoupanca() {
 
   const saldo = useMemo(() => {
     return extrato
-      .filter((item) => item.conta === "conta-poupança")
+      .filter((item) => item.conta === "poupanca")
       .reduce((acc, item) => acc + Number(item.valor), 0);
   }, [extrato]);
 

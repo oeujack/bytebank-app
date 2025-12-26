@@ -14,7 +14,6 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloseIcon from '@mui/icons-material/Close';
 import ButtonServices from '@shared/components/ButtonServices';
-import type { Extrato } from '@shared/types';
 import { NumericFormat } from 'react-number-format';
 import {
   useMutationDeleteExtrato,
@@ -31,6 +30,7 @@ import type { RootState } from '@app/providers/store';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { removePdf, uploadPdf } from '@features/extrato/store/pdfSlice';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import type { Extrato } from '@shared/interfaces';
 
 export default function ExtratoList() {
   const [editandoId, setEditandoId] = useState<string | null>(null);
