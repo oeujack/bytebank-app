@@ -2,14 +2,19 @@ import { Box, IconButton, Typography } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { logout } from '@features/auth/store';
+import { useDispatch, useSelector } from 'react-redux';
+import type { RootState } from '@app/providers/store';
+import { useNavigate } from 'react-router';
 
 export default function HeaderComponent() {
-  const user: string = 'Usuário';
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const userName = useSelector((state: RootState) => state.auth.user?.name);
 
   function handleLogout() {
-    sessionStorage.removeItem('token');
-    logout();
-    window.location.reload();
+    dispatch(logout());
+    navigate('/home');
   }
 
   return (
@@ -29,7 +34,7 @@ export default function HeaderComponent() {
     >
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <AccountCircleIcon sx={{ marginRight: '8px', color: 'white' }} />
-        <Typography variant="h5">Olá, {user}</Typography>
+        <Typography variant="h5">Olá, {userName}</Typography>
       </Box>
 
       <IconButton onClick={handleLogout}>

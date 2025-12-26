@@ -5,7 +5,9 @@ import type { RootState } from '@app/providers/store';
 import { setFiltroBusca } from '@features/extrato/store';
 
 export default function FiltroBuscaExtrato() {
-  const busca = useSelector((state: RootState) => state.extratoFilter.filtroBusca);
+  const busca = useSelector(
+    (state: RootState) => state.extratoFilter.filtroBusca
+  );
   const dispatch = useDispatch();
 
   return (
@@ -15,12 +17,14 @@ export default function FiltroBuscaExtrato() {
         placeholder="Buscar..."
         value={busca}
         onChange={(e) => dispatch(setFiltroBusca(e.target.value))}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchIcon />
-            </InputAdornment>
-          ),
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          },
         }}
       />
     </Box>

@@ -1,13 +1,10 @@
 import { ENV } from '@core/config';
-import axios from 'axios';
-import type { Extrato } from '@shared/types';
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL,
-});
+import { api } from '@features/auth/services/auth/api-auth-service';
+import type { Extrato } from '@shared/interfaces';
 
 export async function getExtrato(): Promise<Extrato[]> {
   const response = await api.get<Extrato[]>(`${ENV.EXTRATO}`);
+
   return response.data;
 }
 
@@ -22,7 +19,9 @@ export async function updateExtrato(
   id: string,
   valor: number
 ): Promise<Extrato[]> {
-  const response = await api.patch<Extrato[]>(`${ENV.EXTRATO}/${id}`, { valor });
+  const response = await api.put<Extrato[]>(`${ENV.EXTRATO}/${id}`, {
+    valor,
+  });
   return response.data;
 }
 

@@ -70,5 +70,18 @@ export function useTheme() {
     },
   });
 
-  return theme;
+  const inputStyle = {
+    '& .MuiOutlinedInput-root': {
+      borderRadius: '12px',
+      backgroundColor: '#f5f5f5',
+      '& fieldset': { border: 'none' },
+      '&:hover fieldset': { border: 'none' },
+      '&.Mui-focused fieldset': { border: '1px solid #1a1a1a' },
+    },
+  };
+
+  return {
+    theme,
+    inputStyle,
+  };
 }

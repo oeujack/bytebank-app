@@ -1,16 +1,16 @@
-import Title from "@shared/components/Title";
-import { Box, InputAdornment, TextField, Typography } from "@mui/material";
-import CButton from "@shared/components/CButton";
-import { Formik } from "formik";
-import * as Yup from "yup";
-import { useState, useMemo } from "react";
+import Title from '@shared/components/Title';
+import { Box, InputAdornment, TextField, Typography } from '@mui/material';
+import CButton from '@shared/components/CButton';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import { useState, useMemo } from 'react';
 import {
   useMutationPostExtrato,
   useQueryGetExtrato,
-} from "@features/extrato/hooks";
-import { Slide, toast } from "react-toastify";
-import { Loading } from "@shared/components/Loading";
-import { NumericFormat } from "react-number-format";
+} from '@features/extrato/hooks';
+import { Slide, toast } from 'react-toastify';
+import { Loading } from '@shared/components/Loading';
+import { NumericFormat } from 'react-number-format';
 
 interface FormValues {
   descricao: string;
@@ -19,27 +19,26 @@ interface FormValues {
 }
 
 const initialValues: FormValues = {
-  descricao: "",
+  descricao: '',
   valor: undefined,
-  conta: "",
+  conta: '',
 };
 
 const contaLabelMap: Record<string, string> = {
-  "conta-corrente": "Conta Corrente",
-  "conta-poupança": "Conta Poupança",
+  'conta-corrente': 'Conta Corrente',
+  poupanca: 'Conta Poupança',
 };
 
-// Validações de campos do formulário
 const validationSchema = Yup.object({
-  descricao: Yup.string().required("Informe a descrição do boleto"),
+  descricao: Yup.string().required('Informe a descrição do boleto'),
 
   valor: Yup.number()
-    .typeError("Informe um valor válido")
-    .moreThan(0, "O valor deve ser maior que zero")
-    .required("Informe o valor do boleto"),
+    .typeError('Informe um valor válido')
+    .moreThan(0, 'O valor deve ser maior que zero')
+    .required('Informe o valor do boleto'),
 
   conta: Yup.string().required(
-    "Selecione a conta de onde o valor será debitado"
+    'Selecione a conta de onde o valor será debitado'
   ),
 });
 
@@ -53,7 +52,7 @@ export default function PageBoleto() {
     if (!data) return Object.create(null);
 
     return data.reduce((acc, item: any) => {
-      const conta = item.conta ?? "global";
+      const conta = item.conta ?? 'global';
       acc[conta] = (acc[conta] || 0) + Number(item.valor);
       return acc;
     }, Object.create(null));
@@ -71,9 +70,9 @@ export default function PageBoleto() {
           //Validação de saldo suficiente
           const valorNumerico = values.valor ?? 0;
           const saldoConta =
-            saldoPorConta[values.conta] ?? saldoPorConta["global"] ?? 0;
+            saldoPorConta[values.conta] ?? saldoPorConta['global'] ?? 0;
           if (saldoConta < valorNumerico) {
-            toast.warning("Saldo insuficiente para pagar o boleto.");
+            toast.warning('Saldo insuficiente para pagar o boleto.');
             return;
           }
 
@@ -85,29 +84,29 @@ export default function PageBoleto() {
               values: {
                 tipo: `Boleto (${contaLabel})`,
                 descricao: values.descricao,
-                horario: now.toLocaleTimeString("pt-BR", {
-                  hour: "2-digit",
-                  minute: "2-digit",
+                horario: now.toLocaleTimeString('pt-BR', {
+                  hour: '2-digit',
+                  minute: '2-digit',
                 }),
                 valor: -Math.abs(valorNumerico),
-                icone: "LanguageIcon",
+                icone: 'LanguageIcon',
                 data: now.toISOString().slice(0, 10),
                 conta: values.conta,
               },
             });
 
-            toast.success("Boleto pago com sucesso!", {
-              position: "top-right",
+            toast.success('Boleto pago com sucesso!', {
+              position: 'top-right',
               autoClose: 9000,
-              theme: "colored",
+              theme: 'colored',
               transition: Slide,
             });
 
             resetForm();
             setFormKey((k) => k + 1);
           } catch (error) {
-            console.error("Erro ao realizar pagamento do boleto:", error);
-            toast.error("Erro ao realizar pagamento do boleto.");
+            console.error('Erro ao realizar pagamento do boleto:', error);
+            toast.error('Erro ao realizar pagamento do boleto.');
           }
         }}
       >
@@ -120,11 +119,11 @@ export default function PageBoleto() {
           touched,
         }) => (
           <Box
-            sx={{ p: 3, bgcolor: "#ffffff" }}
+            sx={{ p: 3, bgcolor: '#ffffff' }}
             component="form"
             onSubmit={handleSubmit}
           >
-            <Typography sx={{ mb: 1, fontWeight: "bold" }}>
+            <Typography sx={{ mb: 1, fontWeight: 'bold' }}>
               Descrição do boleto
             </Typography>
 
@@ -140,7 +139,7 @@ export default function PageBoleto() {
               sx={{ mb: 4 }}
             />
 
-            <Typography sx={{ mb: 1, fontWeight: "bold" }}>
+            <Typography sx={{ mb: 1, fontWeight: 'bold' }}>
               Qual valor do boleto?
             </Typography>
 
@@ -154,7 +153,7 @@ export default function PageBoleto() {
               decimalScale={2}
               fixedDecimalScale
               value={values.valor}
-              onValueChange={(v) => setFieldValue("valor", v.floatValue)}
+              onValueChange={(v) => setFieldValue('valor', v.floatValue)}
               error={touched.valor && Boolean(errors.valor)}
               helperText={touched.valor && errors.valor}
               sx={{ mb: 4 }}
@@ -168,33 +167,33 @@ export default function PageBoleto() {
             />
 
             <Box sx={{ mb: 4 }}>
-              <Typography sx={{ mb: 1, fontWeight: "bold" }}>
+              <Typography sx={{ mb: 1, fontWeight: 'bold' }}>
                 De qual conta vai sair esse valor?
               </Typography>
 
-              <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
+              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
                 <CButton
-                  color={values.conta === "conta-corrente" ? "info" : "inherit"}
+                  color={values.conta === 'conta-corrente' ? 'info' : 'inherit'}
                   text="conta-corrente"
-                  onClick={() => setFieldValue("conta", "conta-corrente")}
+                  onClick={() => setFieldValue('conta', 'conta-corrente')}
                 />
                 <CButton
-                  color={values.conta === "conta-poupança" ? "info" : "inherit"}
-                  text="conta-poupança"
-                  onClick={() => setFieldValue("conta", "conta-poupança")}
+                  color={values.conta === 'poupanca' ? 'info' : 'inherit'}
+                  text="poupanca"
+                  onClick={() => setFieldValue('conta', 'poupanca')}
                 />
               </Box>
               {touched.conta && errors.conta && (
                 <Typography
                   color="error"
-                  sx={{ mt: 1, textAlign: "center", fontSize: "12px" }}
+                  sx={{ mt: 1, textAlign: 'center', fontSize: '12px' }}
                 >
                   {errors.conta}
                 </Typography>
               )}
             </Box>
 
-            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
               <CButton
                 color="primary"
                 text="Concluir"

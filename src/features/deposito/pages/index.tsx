@@ -21,7 +21,7 @@ const initialValues: FormValues = {
 
 const contaLabelMap: Record<string, string> = {
   "conta-corrente": "Conta Corrente",
-  "conta-poupança": "Conta Poupança",
+  "poupanca": "Conta Poupança",
 };
 
 const validationSchema = Yup.object({
@@ -126,9 +126,9 @@ export default function PageDeposito() {
                   onClick={() => setFieldValue("conta", "conta-corrente")}
                 />
                 <CButton
-                  color={values.conta === "conta-poupança" ? "info" : "inherit"}
-                  text="conta-poupança"
-                  onClick={() => setFieldValue("conta", "conta-poupança")}
+                  color={values.conta === "poupanca" ? "info" : "inherit"}
+                  text="poupanca"
+                  onClick={() => setFieldValue("conta", "poupanca")}
                 />
               </Box>
 

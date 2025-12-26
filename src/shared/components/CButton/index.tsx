@@ -15,17 +15,18 @@ export default function CButton({ text, color, ...rest }: ButtonProps) {
       variant="contained"
       sx={{
         textTransform: 'none',
-        borderRadius: 0,
-        width: 'auto',
-        backgroundColor: color === 'inherit' ? 'inherit' : color,
-        color:
-          color === 'inherit'
-            ? 'black'
-            : color === 'secondary'
-            ? 'black'
-            : 'white',
+        borderRadius: '50px',
+        px: 3,
+        fontWeight: 600,
+        backgroundColor: color === 'primary' ? '#fff' : 'transparent',
+        color: color === 'primary' ? '#000' : '#fff',
         border:
-          color === 'inherit' ? '1px solid black' : '1px solid transparent',
+          color === 'primary' ? 'none' : '1px solid rgba(255,255,255,0.3)',
+        '&:hover': {
+          backgroundColor:
+            color === 'primary' ? '#e0e0e0' : 'rgba(255,255,255,0.1)',
+        },
+        ...rest,
       }}
       {...rest}
     >

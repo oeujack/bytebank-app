@@ -1,18 +1,19 @@
+import type { Extrato } from '@shared/interfaces';
 import {
   deleteExtrato,
   getExtrato,
   postExtrato,
   updateExtrato,
-} from "../services/extratoService";
+} from '../services/extratoService';
 import {
   useMutation,
   useQuery,
   useQueryClient,
   type UseQueryOptions,
-} from "@tanstack/react-query";
-import type { Extrato } from "@shared/types";
-import type { AxiosError } from "axios";
-import { toast } from "react-toastify";
+} from '@tanstack/react-query';
+
+import type { AxiosError } from 'axios';
+import { toast } from 'react-toastify';
 
 interface ChartViewProps {
   data: string;
@@ -21,12 +22,12 @@ interface ChartViewProps {
   saldo: number;
 }
 
-export const EXTRATO_QUERY_KEY = ["extrato"];
+export const EXTRATO_QUERY_KEY = ['extrato'];
 
 export function useQueryGetExtrato<TSelect = Extrato[]>(
   options?: Omit<
     UseQueryOptions<Extrato[], Error, TSelect>,
-    "queryKey" | "queryFn"
+    'queryKey' | 'queryFn'
   >
 ) {
   return useQuery<Extrato[], Error, TSelect>({
@@ -38,14 +39,11 @@ export function useQueryGetExtrato<TSelect = Extrato[]>(
   });
 }
 
-
-
-
 export function useMutationPostExtrato() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ values }: { values: Omit<Extrato, "id"> }) =>
+    mutationFn: ({ values }: { values: Omit<Extrato, 'id'> }) =>
       postExtrato(values),
 
     onMutate: async ({ values }) => {
@@ -73,10 +71,9 @@ export function useMutationPostExtrato() {
         queryClient.setQueryData(EXTRATO_QUERY_KEY, context.previousExtrato);
       }
 
-      const message =
-        (error.response?.data as any)?.message ?? "Erro ao adicionar extrato";
+      const message = 'Erro ao adicionar extrato';
 
-      console.error("Erro ao inserir:", error);
+      console.error('Erro ao inserir:', error);
       toast.error(message);
     },
 
@@ -116,8 +113,8 @@ export function useMutationUpdateExtrato() {
         queryClient.setQueryData(EXTRATO_QUERY_KEY, context.previousExtrato);
       }
 
-      console.error("Erro ao atualizar:", error);
-      toast.error("Erro ao atualizar");
+      console.error('Erro ao atualizar:', error);
+      toast.error('Erro ao atualizar');
     },
 
     onSettled: () => {
@@ -153,8 +150,8 @@ export function useMutationDeleteExtrato() {
         queryClient.setQueryData(EXTRATO_QUERY_KEY, context.previousExtrato);
       }
 
-      console.error("Erro ao deletar:", error);
-      toast.error("Erro ao deletar");
+      console.error('Erro ao deletar:', error);
+      toast.error('Erro ao deletar');
     },
 
     onSettled: () => {
@@ -169,7 +166,7 @@ export function useChartExtrato() {
       const agrupado: Record<string, { entrada: number; saida: number }> = {};
 
       extrato.forEach((item) => {
-        if (!item.data || typeof item.valor !== "number") return;
+        if (!item.data || typeof item.valor !== 'number') return;
 
         if (!agrupado[item.data]) {
           agrupado[item.data] = { entrada: 0, saida: 0 };
@@ -190,7 +187,7 @@ export function useChartExtrato() {
           saldoAcumulado += valores.entrada - valores.saida;
 
           return {
-            data: data.split("-").reverse().join("/"),
+            data: data.split('-').reverse().join('/'),
             entrada: valores.entrada,
             saida: valores.saida,
             saldo: saldoAcumulado,
@@ -199,6 +196,3 @@ export function useChartExtrato() {
     },
   });
 }
-
-
-
