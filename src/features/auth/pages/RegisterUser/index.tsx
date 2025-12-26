@@ -16,17 +16,18 @@ import { useDispatch } from 'react-redux';
 import type { AppDispatch } from '@app/providers/store';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { loginThunk } from '@features/auth/store/useAuthStore';
+import { createThunk, loginThunk } from '@features/auth/store/useAuthStore';
 import { useTheme } from '@shared/styles/useTheme';
 
 const validationSchema = Yup.object().shape({
+  name: Yup.string().required('Nome obrigatório'),
   email: Yup.string().email('E-mail inválido').required('E-mail obrigatório'),
   password: Yup.string()
     .min(4, 'Mínimo de 6 caracteres')
     .required('Senha obrigatória'),
 });
 
-export function Login({
+export function RegisterUser({
   open,
   onClose,
 }: {
@@ -37,7 +38,6 @@ export function Login({
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { inputStyle } = useTheme();
-
   const cardVariants = {
     hidden: { x: 50, opacity: 0 },
     visible: {
@@ -89,21 +89,23 @@ export function Login({
             variant="h3"
             sx={{ fontWeight: 600, mb: 1, color: '#1a1a1a' }}
           >
-            Acesse sua conta
+            Comece sua jornada
           </Typography>
           <Typography variant="body2" sx={{ color: '#666', mb: 4 }}>
-            Entre com suas credenciais para continuar.
+            Junte-se ao Bytebank e domine sua vida financeira hoje.
           </Typography>
 
           <Formik
             initialValues={{
+              name: '',
               email: '',
               password: '',
             }}
             validationSchema={validationSchema}
-            onSubmit={async (values, { setSubmitting, resetForm }) => {
+            onSubmit={async (values, { setSubmitting }) => {
               setSubmitting(true);
               try {
+                await dispatch(createThunk(values)).unwrap();
                 await dispatch(
                   loginThunk({
                     email: values.email,
@@ -111,12 +113,11 @@ export function Login({
                   })
                 ).unwrap();
 
-                toast.success('Login realizado com sucesso!');
+                toast.success('Conta criada e logada com sucesso!');
+                onClose();
                 navigate('/dashboard');
-                resetForm();
-              } catch (error) {
-                toast.error('Erro ao efetuar login!');
-                console.error('Erro login:', error);
+              } catch (error: any) {
+                toast.error(error);
               } finally {
                 setSubmitting(false);
               }
@@ -131,6 +132,21 @@ export function Login({
               touched,
             }) => (
               <Box component="form" onSubmit={handleSubmit}>
+                <Typography variant="caption" sx={{ fontWeight: 700, ml: 1 }}>
+                  Nome
+                </Typography>
+                <TextField
+                  fullWidth
+                  name="name"
+                  placeholder="Digite o nome completo"
+                  variant="outlined"
+                  margin="dense"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.name && Boolean(errors.name)}
+                  helperText={touched.name && errors.name}
+                  sx={inputStyle}
+                />
                 <Typography variant="caption" sx={{ fontWeight: 700, ml: 1 }}>
                   E-mail
                 </Typography>
@@ -198,7 +214,7 @@ export function Login({
                       '&:hover': { bgcolor: '#333' },
                     }}
                   >
-                    {isSubmitting ? 'Entrando...' : 'Entrar'}
+                    {isSubmitting ? 'Cadastrando...' : 'Cadastrar'}
                   </Button>
                 </motion.div>
               </Box>
