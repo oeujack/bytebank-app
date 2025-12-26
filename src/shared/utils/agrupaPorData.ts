@@ -1,4 +1,4 @@
-import type { Extrato } from '@shared/types';
+import type { Extrato } from '@shared/interfaces';
 
 export function agruparPorData(extrato: Extrato[] = []): Record<string, Extrato[]> {
   return extrato.reduce((acc, item) => {
