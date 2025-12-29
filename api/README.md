@@ -123,42 +123,6 @@ GET    /transactions/balance [AUTH REQUIRED]
 - Senhas são hasheadas usando **bcrypt** com salt rounds 8
 - Senhas nunca são retornadas nas respostas da API
 
-## 🔥 Integração com Firebase Storage
-
-A API está preparada para trabalhar com URLs de imagens armazenadas no Firebase Storage:
-
-### Configuração do Firebase (Frontend)
-```javascript
-// firebase.ts
-const firebaseConfig = {
-  apiKey: "your_api_key_here",
-  authDomain: "your_project.firebaseapp.com",
-  projectId: "your_project_id",
-  storageBucket: "your_project.firebasestorage.app",
-  messagingSenderId: "your_sender_id",
-  appId: "your_app_id"
-};
-```
-
-### Upload de Imagens
-- Imagens são enviadas pelo frontend para o Firebase Storage
-- A URL resultante é salva no campo `attachment_url` das transações
-- Formatos suportados: JPG, PNG
-- Tamanho máximo: 2MB
-- Compressão automática: 800px de largura, 60% de qualidade
-
-## 📊 Cálculo de Saldos
-
-O endpoint `/transactions/balance` calcula automaticamente os saldos baseado nas transações:
-
-```javascript
-// Exemplo de resposta
-{
-  "contaCorrente": 2500.50,
-  "poupanca": 1200.00
-}
-```
-
 ### Lógica de Cálculo
 - **Depósitos**: Adicionam ao saldo da conta especificada
 - **Transferências**: Subtraem do saldo da conta especificada
@@ -246,17 +210,6 @@ curl -X POST http://localhost:3333/transactions \
     "description":"Depósito inicial",
     "attachment_url":"https://firebasestorage.googleapis.com/..."
   }'
-```
-
-## 🚀 Deploy em Produção
-
-### Variáveis de Ambiente Recomendadas
-```env
-NODE_ENV=production
-PORT=3333
-JWT_SECRET=seu_jwt_secret_super_seguro
-REFRESH_SECRET=seu_refresh_secret_super_seguro
-DATABASE_URL=caminho_para_producao.db
 ```
 
 ### Considerações de Segurança
