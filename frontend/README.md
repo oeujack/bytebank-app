@@ -58,19 +58,13 @@ Decidimos também reimaginar em alguns pontos o layout proposto ara o projeto, q
    npm install
    ```
 
-2. **Inicie o servidor de dados (json-server):**
-   ```bash
-   npm install -g json-server
-   json-server --watch json-server/db.json --port 3001
-   ```
-
-3. **Inicie o servidor de desenvolvimento:**
+2. **Inicie o servidor de desenvolvimento:**
    ```bash
    npm run dev
    ```
 
-4. **Acesse a aplicação:**
-   Abra [http://localhost:5173](http://localhost:5173) no seu navegador. Após abrir a aplicação no seu navegador, aparecerá uma tela inicial informativa sobre o Bytebank, para acessar a parte transacional do projeto, clique em "Já tenho conta".
+3. **Acesse a aplicação:**
+   Abra [http://localhost:5173](http://localhost:5173) no seu navegador. Após abrir a aplicação no seu navegador, aparecerá uma tela inicial informativa sobre o Bytebank, para acessar a parte transacional do projeto, certifique-se de ter iniciado api seguindo o readme da aplicação [API](https://github.com/oeujack/bytebank-app/tree/master/api)
 
 ## Documentação de Componentes com Storybook
 
@@ -149,14 +143,6 @@ json-server/
 - Validações reativas em formulários com Yup
 - Formatação em tempo real de valores monetários
 - Filtros e buscas responsivas
-
-## Observações
-
-- O projeto utiliza arquitetura modular com lazy loading para otimização de performance
-- Cache inteligente implementado com React Query para reduzir requisições
-- O `json-server` simula uma API REST. Certifique-se de deixá-lo rodando para que as operações funcionem corretamente
-- Os dados não são persistidos em um banco real, apenas no arquivo `db.json`
-- Interface responsiva e moderna
 
 ## Licença
 
