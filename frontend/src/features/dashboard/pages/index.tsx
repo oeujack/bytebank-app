@@ -2,6 +2,7 @@ import ButtonServices from '@shared/components/ButtonServices';
 import { Box } from '@mui/material';
 import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
 import ReceiptIcon from '@mui/icons-material/Receipt';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import CardComponents from '@shared/components/CardComponents';
 import CardPoupanca from '@shared/components/CardPoupanca';
 import CardInvestimentos from '@shared/components/CardInvestimentos';
@@ -34,6 +35,13 @@ export default function PageDashboard() {
           <ButtonServices
             icon={<ReceiptIcon fontSize="large" />}
             label="Pagar Boleto"
+            color="info"
+          />
+        </Link>
+        <Link to="/deposito" className="navigationLink">
+          <ButtonServices
+            icon={<AttachMoneyIcon fontSize="large" />}
+            label="Depositar"
             color="info"
           />
         </Link>

@@ -66,8 +66,7 @@ export default function PageBoleto() {
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
-        onSubmit={async (values, { resetForm }) => {
-          //Validação de saldo suficiente
+        onSubmit={async (values, { resetForm }) => {        
           const valorNumerico = values.valor ?? 0;
           const saldoConta =
             saldoPorConta[values.conta] ?? saldoPorConta['global'] ?? 0;
@@ -77,12 +76,11 @@ export default function PageBoleto() {
           }
 
           const now = new Date();
-          const contaLabel = contaLabelMap[values.conta] ?? values.conta;
 
           try {
             await postMutation.mutateAsync({
               values: {
-                tipo: `Boleto (${contaLabel})`,
+                tipo: 'pagamento',
                 descricao: values.descricao,
                 horario: now.toLocaleTimeString('pt-BR', {
                   hour: '2-digit',
