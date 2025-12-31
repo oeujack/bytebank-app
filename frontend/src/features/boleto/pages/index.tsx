@@ -24,10 +24,6 @@ const initialValues: FormValues = {
   conta: '',
 };
 
-const contaLabelMap: Record<string, string> = {
-  'conta-corrente': 'Conta Corrente',
-  poupanca: 'Conta Poupança',
-};
 
 const validationSchema = Yup.object({
   descricao: Yup.string().required('Informe a descrição do boleto'),

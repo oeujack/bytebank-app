@@ -2,9 +2,7 @@ import { Box, Typography } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { useState, useMemo } from 'react';
-import CButton from '../CButton';
 import { useQueryGetExtrato } from '@features/extrato/hooks';
-import { Link } from 'react-router-dom';
 
 export default function CardPoupanca() {
   const [showedBalance, setShowBalance] = useState(false);
